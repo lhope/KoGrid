@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/22/2012 17:45:02
+* Compiled At: 10/23/2012 10:07:58
 ***********************************************/
 
 
@@ -1737,7 +1737,7 @@ kg.KoGrid = function (options, gridWidth) {
         lastClickedRow: ko.observable(),
         tabIndex: -1,
         disableTextSelection: false,
-        enableColumnResize: false,
+        enableColumnResize: false, //turned off for now.
         selectAllInitialState: false
     },
 

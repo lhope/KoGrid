@@ -41,7 +41,7 @@ kg.KoGrid = function (options, gridWidth) {
         lastClickedRow: ko.observable(),
         tabIndex: -1,
         disableTextSelection: false,
-        enableColumnResize: false,
+        enableColumnResize: false, //turned off for now.
         selectAllInitialState: false
     },
 
