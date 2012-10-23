@@ -1,24 +1,25 @@
 /// <reference path="../utils.js" />
+/// <reference path="../constants.js" />
+/// <reference path="../../lib/knockout-latest.debug.js" />
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
 kg.Row = function (entity, config, selectionManager) {
-    var self = this,
-        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+    var self = this, // constant for the selection property that we add to each data item
         canSelectRows = config.canSelectRows;
     this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     this.selectionManager = selectionManager;
     //selectify the entity
-    if (this.entity()['__kg_selected__'] === undefined) {
-        this.entity()['__kg_selected__'] = ko.observable(false);
+    if (this.entity()[SELECTED_PROP] === undefined) {
+        this.entity()[SELECTED_PROP] = ko.observable(false);
     }
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
                 return false;
             }
-            var val = self.entity()['__kg_selected__']();
+            var val = self.entity()[SELECTED_PROP]();
             return val;
         },
         write: function (val, evt) {
@@ -26,10 +27,11 @@ kg.Row = function (entity, config, selectionManager) {
                 return true;
             }
             self.beforeSelectionChange();
-            self.entity()['__kg_selected__'](val);
+            self.entity()[SELECTED_PROP](val);
             self.selectionManager.changeSelection(self, evt);
             self.afterSelectionChange();
             self.onSelectionChanged();
+            return true;
         }
     });
 
@@ -48,6 +50,7 @@ kg.Row = function (entity, config, selectionManager) {
         } else {
             self.selected() ? self.selected(false, event) : self.selected(true, event);
         }
+        return true;
     };
 
     this.toggle = function(item) {

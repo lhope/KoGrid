@@ -9,13 +9,22 @@
             }
         }
     },
+    
+    indexOfProp: function (obj, name) {
+        var indx = -1;
+        for (var prop in obj) {
+            indx++;
+            if (name == prop) return indx;;
+        }
+        return -1;
+    },
 
     forIn: function (obj, action) {
-        var prop;
-
+        var prop, i = 0;
         for (prop in obj) {
+            i++;
             if(obj.hasOwnProperty(prop)){
-                action(obj[prop], prop);
+                action(obj[prop], prop, i);
             }
         }
     },
@@ -29,7 +38,7 @@
         
         this.append = function (str, data) {
             var len = arguments.length,
-                intMatch = 0,
+                intMatch,
                 strMatch = '{0}',
                 i = 1;
 
@@ -89,7 +98,7 @@
     })(),
     
     // we copy KO's ie detection here bc it isn't exported in the min versions of KO
-    // Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
+    // Detect IE versions for workarounds (uses IE conditionals, not UA string, for robustness) 
     ieVersion: (function () {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
 
@@ -111,11 +120,11 @@
 };
 
 $.extend(kg.utils, {
-    isIe6: (function(){ 
-        return kg.utils.ieVersion === 6}
+    isIe6: (function(){
+        return kg.utils.ieVersion === 6;}
     )(),
-    isIe7: (function(){ 
-        return kg.utils.ieVersion === 7}
+    isIe7: (function(){
+        return kg.utils.ieVersion === 7;}
     )(),
     isIe: (function () { 
         return kg.utils.ieVersion !== undefined; 

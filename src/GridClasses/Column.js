@@ -1,21 +1,21 @@
 ﻿kg.Column = function (colDef, index) {
     var self = this,
-        minWIsOB = ko.isObservable(colDef.minWidth),
-        maxWIsOB = ko.isObservable(colDef.maxWidth);
+        minWisOb = ko.isObservable(colDef.minWidth),
+        maxWisOb = ko.isObservable(colDef.maxWidth);
         
-    this.width = ko.observable(colDef.width);
-    this.widthIsConfigured = false;
-    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
-    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    self.width = ko.observable(colDef.width);
+    self.widthIsConfigured = false;
+    self.minWidth = minWisOb ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    self.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
     
-    this.field = colDef.field;
-    if (colDef.displayName === undefined || colDef.displayName === null) {
+    self.field = colDef.field;
+    if (!colDef.displayName) {
         // Allow empty column names -- do not check for empty string
         colDef.displayName = colDef.field;
     }
-    this.displayName = colDef.displayName;
-    this.index = index;
-    this.isVisible = ko.observable(false);
+    self.displayName = colDef.displayName;
+    self.index = index;
+    self.isVisible = ko.observable(false);
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
@@ -31,27 +31,27 @@
         colDef.filterable = true;
     }
     
-    this.allowSort = colDef.sortable;
-    this.allowResize = colDef.resizable;
-    this.allowFilter = colDef.filterable;
+    self.allowSort = ko.observable(colDef.sortable);
+    self.allowResize = ko.observable(colDef.resizable);
+    self.allowFilter = colDef.filterable;
     
-    this.sortDirection = ko.observable("");
-    this.sortingAlgorithm = colDef.sortFn;
+    self.sortDirection = ko.observable("");
+    self.sortingAlgorithm = colDef.sortFn;
 
     //filtering
-    this.filter = ko.observable();
+    self.filter = ko.observable();
 
     //cell Template
-    this.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
-    this.hasCellTemplate = (this.cellTemplate ? true : false);
+    self.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
+    self.hasCellTemplate = (self.cellTemplate ? true : false);
     if (self.hasCellTemplate){
         var elem = document.getElementById(self.cellTemplate);
         var templText = elem ? elem.innerHTML : undefined;
         kg.templateManager.addTemplateSafe(self.cellTemplate, templText);
     }
-    this.cellClass = colDef.cellClass;
-    this.headerClass = colDef.headerClass;
+    self.cellClass = colDef.cellClass;
+    self.headerClass = colDef.headerClass;
 
-    this.headerTemplate = colDef.headerTemplate
-    this.hasHeaderTemplate = (this.headerTemplate ? true : false);
+    self.headerTemplate = colDef.headerTemplate;
+    self.hasHeaderTemplate = (self.headerTemplate ? true : false);
 };

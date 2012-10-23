@@ -1,6 +1,6 @@
 ko.bindingHandlers['kgRow'] = (function () {
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function () {
 
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -14,13 +14,10 @@ ko.bindingHandlers['kgRow'] = (function () {
                 classes += ' kgCanSelect';
             }
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
-
             element['__kg_rowIndex__'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
-
             //ensure we know the node to dispose later!
-
             rowSubscription = rowManager.rowSubscriptions[row.rowIndex];
             if (rowSubscription) {
                 rowSubscription.node = element;

@@ -1,16 +1,15 @@
-﻿kg.gridManager = (new function () {
-    var self = this,
-        elementGridKey = '__koGrid__';
+﻿/// <reference path="constants.js" />
+/// <reference path="namespace.js" />
 
-    //#region Public Properties
+kg.gridManager = (new function () {
+    var self = this;
+    // the place we store grids
     this.gridCache = {};
-
-    //#endregion
-
-    //#region Public Methods
+   
+    
     this.storeGrid = function (element, grid) {
         self.gridCache[grid.gridId] = grid;
-        element[elementGridKey] = grid.gridId;
+        element[GRID_KEY] = grid.gridId;
     };
     
     this.removeGrid = function(gridId) {
@@ -18,9 +17,9 @@
     };
 
     this.getGrid = function (element) {
-        var grid;
-        if (element[elementGridKey]) {
-            grid = self.gridCache[element[elementGridKey]];
+        var grid = undefined;
+        if (element[GRID_KEY]) {
+            grid = self.gridCache[element[GRID_KEY]];
         }
         return grid;
     };
@@ -30,13 +29,7 @@
     };
     
     this.getIndexOfCache = function(gridId) {
-        var indx = -1;   
-        for (var grid in self.gridCache) {
-            indx++;
-            if (!self.gridCache.hasOwnProperty(grid)) continue;
-            return indx;
-        }
-        return indx;
+        kg.utils.indexOfProp(self.gridCache, gridId);
     };
 
     this.assignGridEventHandlers = function (grid) {
@@ -64,13 +57,6 @@
         } else {
             grid.$viewport.attr('tabIndex', grid.config.tabIndex);
         }
-        
-        //resize the grid on parent re-size events
-        var $parent = grid.$root.parent();
-
-        if ($parent.length == 0) {
-            $parent = grid.$root;
-        }
 
         $(window).resize(function () {
             var prevSizes = {
@@ -79,8 +65,8 @@
                 rootMinH: grid.elementDims.rootMinH,
                 rootMinW: grid.elementDims.rootMinW
             },
-            scrollTop = 0,
-            isDifferent = false;
+            scrollTop,
+            isDifferent;
             
             // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
             var $hiddens = grid.$root.parents(":hidden");

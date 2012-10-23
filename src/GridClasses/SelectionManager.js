@@ -1,4 +1,7 @@
-﻿// Class that manages all row selection logic
+﻿/// <reference path="../constants.js" />
+/// <reference path="../namespace.js" />
+/// <reference path="../../lib/knockout-latest.debug.js" />
+// Class that manages all row selection logic
 // @options - {
 //      selectedItems - an observable array to keep in sync w/ the selected rows
 //      selectedIndex - an observable to keep in sync w/ the index of the selected data item
@@ -10,8 +13,6 @@ kg.SelectionManager = function (options, rowManager) {
         isMulti = options.isMulti || options.isMultiSelect,
         ignoreSelectedItemChanges = false, // flag to prevent circular event loops keeping single-select observable in sync
         dataSource = options.data, // the observable array datasource
-        KEY = '__kg_selected__', // constant for the selection property that we add to each data item,
-        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
@@ -37,12 +38,12 @@ kg.SelectionManager = function (options, rowManager) {
     });
     
     // function to manage the selection action of a data item (entity)
-    this.changeSelection = function (rowItem, evt) {
+    this.changeSelection = function(rowItem, evt) {
         if (isMulti && evt && evt.shiftKey) {
-            if(self.lastClickedRow()) {
+            if (self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
                 var prevIndx = rowManager.rowCache.indexOf(self.lastClickedRow());
-                if (thisIndx == prevIndx) return;
+                if (thisIndx == prevIndx) return false;
                 prevIndx++;
                 if (thisIndx < prevIndx) {
                     thisIndx = thisIndx ^ prevIndx;
@@ -57,12 +58,12 @@ kg.SelectionManager = function (options, rowManager) {
                 return true;
             }
         } else if (!isMulti) {
-            rowItem.selected() ? self.selectedItems([rowItem.entity()]) :self.selectedItems([]);
-        }      
+            rowItem.selected() ? self.selectedItems([rowItem.entity()]) : self.selectedItems([]);
+        }
         self.addOrRemove(rowItem);
         self.lastClickedRow(rowItem);
         return true;
-    }
+    };
 
     // just call this func and hand it the rowItem you want to select (or de-select)    
     this.addOrRemove = function(rowItem) {
@@ -88,17 +89,17 @@ kg.SelectionManager = function (options, rowManager) {
             newItems = [];
         }
 
-        kg.utils.forEach(data, function (item, i) {
+        kg.utils.forEach(data, function (item) {
 
-            if (!item[KEY]) {
-                item[KEY] = ko.observable(false);
+            if (!item[SELECTED_PROP]) {
+                item[SELECTED_PROP] = ko.observable(false);
             }
 
             if (ko.utils.arrayIndexOf(newItems, item) > -1) {
                 //newItems contains the item
-                item[KEY](true);
+                item[SELECTED_PROP](true);
             } else {
-                item[KEY](false);
+                item[SELECTED_PROP](false);
             }
 
         });

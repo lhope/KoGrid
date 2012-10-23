@@ -36,26 +36,27 @@
         self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate(config));
 
         //header row template
+        var template;
         if (config.headerTemplate) {
-            var template = self.getTemplateFromDom(config.headerTemplate) || kg.templates.generateHeaderTemplate(config);
+            template = self.getTemplateFromDom(config.headerTemplate) || kg.templates.generateHeaderTemplate(config);
             self.addTemplateSafe(config.headerTemplate, template);
         }
 
         //header cell template
         if (config.headerCellTemplate) {
-            var template = self.getTemplateFromDom(config.headerCellTemplate) || kg.templates.defaultHeaderCellTemplate(config);
+            template = self.getTemplateFromDom(config.headerCellTemplate) || kg.templates.defaultHeaderCellTemplate(config);
             self.addTemplateSafe(config.headerCellTemplate, template);
         }
 
         //row template
         if (config.rowTemplate) {
-            var template = self.getTemplateFromDom(config.rowTemplate) || kg.templates.generateRowTemplate(config);
+            template = self.getTemplateFromDom(config.rowTemplate) || kg.templates.generateRowTemplate(config);
             self.addTemplateSafe(config.rowTemplate, template);
         }
 
         //footer template
         if (config.footerTemplate) {
-            var template = self.getTemplateFromDom(config.footerTemplate) || kg.templates.defaultFooterTemplate(config);
+            template = self.getTemplateFromDom(config.footerTemplate) || kg.templates.defaultFooterTemplate(config);
             self.addTemplateSafe(config.footerTemplate, template);
         }
     };

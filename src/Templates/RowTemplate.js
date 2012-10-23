@@ -1,11 +1,9 @@
 ﻿kg.templates.generateRowTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
-        cols = options.columns;
+        cols = options.columns();
 
     b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { \'kgSelected\': $data.selected }">');
-
-    kg.utils.forEach(cols, function (col, i) {
-
+    kg.utils.forEach(cols, function (col) {
         // check for the Selection Column
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgCell: { value: \'{0}\' } ">', col.field);
@@ -20,15 +18,12 @@
         else if (col.hasCellTemplate) {
             // first pull the template
             var tmpl = kg.templateManager.getTemplate(col.cellTemplate).innerHTML;
-
             // build the replacement text
             var replacer = "{ value: '" + col.field + "' }";
-
             // run any changes on the template for re-usable templates
             tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || 'kgEmpty');
             tmpl = tmpl.replace(/\$cellValue/g, "$data." + col.field);
             tmpl = tmpl.replace(/\$cell/g, replacer);
-
             b.append(tmpl);
         }
         // finally just use a basic template for the cell
@@ -36,8 +31,6 @@
             b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || 'kgEmpty',  col.field);
         }
     });
-
     b.append('</div>');
-
     return b.toString();
 };

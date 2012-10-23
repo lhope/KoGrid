@@ -8,7 +8,7 @@
         };
     };
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,
                 cell,
                 property,
@@ -19,14 +19,13 @@
                 cell = headerRow.headerCellMap[property];
                 if (cell) {
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
-                        return { 'controlsDescendantBindings': true }
+                        return { 'controlsDescendantBindings': true };
                     }
                 }
             }
-
-            
+            return false;
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,
                 grid = bindingContext.$parent,
                 cell,
@@ -37,21 +36,19 @@
                 property = options.value;
                 cell = headerRow.headerCellMap[property];
                 if (cell) {
-                    
                     //format the header cell
                     element.className += " kgHeaderCell col" + cell.colIndex + " ";
-                    
                     //add the custom class in case it has been provided
                     if (cell.headerClass) {
                         element.className += " " + cell.headerClass;
                     }
-
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
                         return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
                     }
                 }
             }
+            return false;
         }
-    }
+    };
 } ());

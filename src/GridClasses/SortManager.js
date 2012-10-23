@@ -1,23 +1,21 @@
 ﻿kg.SortManager = function (options) {
     var self = this,
         colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
-        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
-        ASC = "asc", // constant for sorting direction
-        DESC = "desc", // constant for sorting direction
+        dateRe = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
         prevSortInfo = {}, // obj for previous sorting comparison (helps with throttling events)
         dataSource = options.data, //observableArray
         initPhase = 0, // flag for preventing improper dependency registrations with KO
         internalSortedData = ko.observableArray([]);
 
     // utility function for null checking
-    this.isEmpty = function (val) {
+    self.isEmpty = function (val) {
         return (val === null || val === undefined || val === '');
     };
 
     // the sorting metadata, eg: { column: { field: 'sku' }, direction: "asc" }
-    this.sortInfo = options.sortInfo || ko.observable();
+    self.sortInfo = options.sortInfo || ko.observable();
 
-    this.sortedData = ko.computed(function () {
+    self.sortedData = ko.computed(function () {
         var sortData = internalSortedData();
         //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a
         // dependency during the binding handler's dependency detection :(
@@ -31,18 +29,14 @@
     // this takes an piece of data from the cell and tries to determine its type and what sorting
     // function to use for it
     // @item - the cell data
-    this.guessSortFn = function (item) {
+    self.guessSortFn = function (item) {
         var sortFn, // sorting function that is guessed
-            itemStr, // the stringified version of the item
             itemType, // the typeof item
             dateParts, // for date parsing
             month, // for date parsing
             day; // for date parsing
 
-        if (item === undefined || item === null || item === '') {
-            return null;
-        }
-
+        if (item === undefined || item === null || item === '') return null;
         itemType = typeof (item);
 
         //check for numbers and booleans
@@ -56,45 +50,27 @@
         }
 
         //if we found one, return it
-        if (sortFn) {
-            return sortFn;
-        }
-
+        if (sortFn) return sortFn;
         //check if the item is a valid Date
-        if (Object.prototype.toString.call(item) === '[object Date]') {
-            return self.sortDate;
-        }
+        if (Object.prototype.toString.call(item) === '[object Date]') return self.sortDate;
 
-        // if we aren't left with a string, we can't sort full objects...
-        if (itemType !== "string") {
-            return null;
-        }
-
+        // if we aren't left with a string, return a basic sorting function...
+        if (itemType !== "string") return self.basicSort;
         // now lets string check..
 
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
-            return self.sortNumberStr;
-        }
-
+        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) return self.sortNumberStr;
         // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
-        dateParts = item.match(dateRE)
+        dateParts = item.match(dateRe);
         if (dateParts) {
             // looks like a date
             month = parseInt(dateParts[1]);
             day = parseInt(dateParts[2]);
-            if (month > 12) {
-                // definitely dd/mm
-                return self.sortDDMMStr;
-            } else if (day > 12) {
-
-                return self.sortMMDDStr;
-            } else {
-                // looks like a date, but we can't tell which, so assume that it's MM/DD
-                return self.sortMMDDStr;
-            }
+            
+            if (month > 12) return self.sortDDMMStr; // definitely dd/mm
+            return self.sortMMDDStr;
         }
 
         //finally just sort the normal string...
@@ -103,71 +79,61 @@
     };
 
     //#region Sorting Functions
-
-    this.sortNumber = function (a, b) {
-
+    self.basicSort = function (a, b) {
+        if (a == b) return 0;
+        if (a < b) return -1;
+        return 1;
+    };
+    
+    self.sortNumber = function (a, b) {
         return a - b;
     };
 
-    this.sortNumberStr = function (a, b) {
+    self.sortNumberStr = function (a, b) {
         var numA, numB, badA = false, badB = false;
 
         numA = parseFloat(a.replace(/[^0-9.-]/g, ''));
-        if (isNaN(numA)) {
-            badA = true;
-        }
-
+        if (isNaN(numA)) badA = true;
+        
         numB = parseFloat(b.replace(/[^0-9.-]/g, ''));
-        if (isNaN(numB)) {
-            badB = true;
-        }
-
+        if (isNaN(numB)) badB = true;
         // we want bad ones to get pushed to the bottom... which effectively is "greater than"
-        if (badA && badB) {
-            return 0;
-        }
-
-        if (badA) {
-            return 1;
-        }
-
-        if (badB) {
-            return -1;
-        }
-
+        if (badA && badB) return 0;
+        if (badA) return  1;
+        if (badB) return -1;
         return numA - numB;
     };
 
-    this.sortAlpha = function (a, b) {
+    self.sortAlpha = function (a, b) {
         var strA = a.toUpperCase(),
             strB = b.toUpperCase();
 
         return strA == strB ? 0 : (strA < strB ? -1 : 1);
     };
 
-    this.sortDate = function (a, b) {
+    self.sortDate = function (a, b) {
         var timeA = a.getTime(),
             timeB = b.getTime();
 
         return timeA == timeB ? 0 : (timeA < timeB ? -1 : 1);
     };
 
-    this.sortBool = function (a, b) {
+    self.sortBool = function (a, b) {
         if (a && b) { return 0; }
         if (!a && !b) { return 0; }
-        else { return a ? 1 : -1 }
+        return a ? 1 : -1;
     };
 
-    this.sortDDMMStr = function (a, b) {
+    self.sortDDMMStr = function (a, b) {
         var dateA, dateB, mtch,
             m, d, y;
 
-        mtch = a.match(dateRE);
+        mtch = a.match(dateRe);
         y = mtch[3]; m = mtch[2]; d = mtch[1];
         if (m.length == 1) m = '0' + m;
         if (d.length == 1) d = '0' + d;
         dateA = y + m + d;
-        mtch = b.match(dateRE);
+        mtch = b.match(dateRe);
         y = mtch[3]; m = mtch[2]; d = mtch[1];
         if (m.length == 1) m = '0' + m;
         if (d.length == 1) d = '0' + d;
@@ -177,16 +143,16 @@
         return 1;
     };
 
-    this.sortMMDDStr = function (a, b) {
+    self.sortMMDDStr = function (a, b) {
         var dateA, dateB, mtch,
             m, d, y;
 
-        mtch = a.match(dateRE);
+        mtch = a.match(dateRe);
         y = mtch[3]; d = mtch[2]; m = mtch[1];
         if (m.length == 1) m = '0' + m;
         if (d.length == 1) d = '0' + d;
         dateA = y + m + d;
-        mtch = b.match(dateRE);
+        mtch = b.match(dateRe);
         y = mtch[3]; d = mtch[2]; m = mtch[1];
         if (m.length == 1) m = '0' + m;
         if (d.length == 1) d = '0' + d;
@@ -201,11 +167,9 @@
     // the actual sort function to call
     // @col - the column to sort
     // @direction - "asc" or "desc"
-    this.sort = function (col, direction) {
+    self.sort = function (col, direction) {
         //do an equality check first
-        if (col === prevSortInfo.column && direction === prevSortInfo.direction) {
-            return;
-        }
+        if (col === prevSortInfo.column && direction === prevSortInfo.direction) return;
 
         //if its not equal, set the observable and kickoff the event chain
         self.sortInfo({
@@ -215,7 +179,7 @@
     };
 
     // the core sorting logic trigger
-    this.sortData = function () {
+    self.sortData = function () {
         var data = dataSource(),
             sortInfo = self.sortInfo(),
             col,
@@ -223,7 +187,7 @@
             sortFn,
             item,
             propPath,
-            prop,
+            prop = undefined,
             i;
 
         // first make sure we are even supposed to do work
@@ -252,9 +216,7 @@
                     prop = ko.utils.unwrapObservable(prop[propPath[i]]);
                 }
             }
-
             sortFn = self.guessSortFn(prop);
-
             //cache it
             if (sortFn) {
                 colSortFnCache[col.field] = sortFn;
@@ -268,19 +230,14 @@
 
         //now actually sort the data
         data.sort(function (itemA, itemB) {
-            var propA = itemA,
-                propB = itemB,
-                propAEmpty = false,
-                propBEmpty = false,
-                propPath,
-                i;
+            var propA,
+                propB,
+                propAEmpty,
+                propBEmpty;
 
-            propPath = col.field.split(".");
-            for (i = 0; i < propPath.length; i++) {
-                if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
-                if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
-            }
-
+            propA = kg.utils.unwrapPropertyPath(col.field, itemA);
+            propB = kg.utils.unwrapPropertyPath(col.field, itemB);
+            
             propAEmpty = self.isEmpty(propA);
             propBEmpty = self.isEmpty(propB);
 
@@ -294,19 +251,18 @@
             }
 
             //made it this far, we don't have to worry about null & undefined
-            if (direction === ASC) {
+            if (direction === SORT_ASC) {
                 return sortFn(propA, propB);
             } else {
                 return 0 - sortFn(propA, propB);
             }
         });
-
         internalSortedData(data);
     };
 
     //subscribe to the changes in these objects
     dataSource.subscribe(self.sortData);
-    this.sortInfo.subscribe(self.sortData);
+    self.sortInfo.subscribe(self.sortData);
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;

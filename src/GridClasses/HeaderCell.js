@@ -1,24 +1,25 @@
 ﻿kg.HeaderCell = function (col) {
     var self = this;
 
-    this.colIndex = col.colIndex;
-    this.displayName = col.displayName;
-    this.field = col.field;
-    this.column = col;
-
-    this.headerClass = col.headerClass;
-    this.headerTemplate = col.headerTemplate;
-    this.hasHeaderTemplate = col.hasHeaderTemplate;
+    self.colIndex = col.colIndex;
+    self.displayName = col.displayName;
+    self.field = col.field;
+    self.column = col;
+    self.colToRight = col.colToRight;
+    self.headerClass = col.headerClass;
+    self.headerTemplate = col.headerTemplate;
+    self.hasHeaderTemplate = col.hasHeaderTemplate;
     
-    this.allowSort = ko.observable(col.allowSort);
-    this.allowFilter = col.allowFilter;
-    this.allowResize = ko.observable(col.allowResize);
-    
-    this.width = col.width;
-    this.minWidth = col.minWidth;
-    this.maxWidth = col.maxWidth;
+    self.allowSort = col.allowSort;
+    self.allowResize = col.allowResize;
+    self.allowFilter = col.allowFilter;
 
-    this.filter = ko.computed({
+    self.left = col.left;
+    self.width = col.width;
+    self.minWidth = col.minWidth;
+    self.maxWidth = col.maxWidth;
+
+    self.filter = ko.computed({
         read: function () {
             return self.column.filter();
         },
@@ -27,8 +28,8 @@
         }
     });
 
-    this.filterVisible = ko.observable(false);
-    this._filterVisible = ko.computed({
+    self.filterVisible = ko.observable(false);
+    self._filterVisible = ko.computed({
         read: function () {
             return self.allowFilter;
         },
@@ -37,21 +38,21 @@
         }
     });
     
-    this.sortAscVisible = ko.computed(function () {
+    self.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
 
-    this.sortDescVisible = ko.computed(function () {
+    self.sortDescVisible = ko.computed(function () {
         return self.column.sortDirection() === "desc";
     });
 
-    this.noSortVisible = ko.computed(function () {
+    self.noSortVisible = ko.computed(function () {
         var sortDir = self.column.sortDirection();
 
         return sortDir !== "asc" && sortDir !== "desc";
     });
 
-    this.sort = function () {
+    self.sort = function () {
         if (!self.allowSort()) {
             return; // column sorting is disabled, do nothing
         }
@@ -59,22 +60,27 @@
         self.column.sortDirection(dir);
     };
 
-    this.filterHasFocus = ko.observable(false);
-    this.startMousePosition = 0;
-    this.origWidth = 0;
-    this.gripOnMouseUp = function () {
+    self.filterHasFocus = ko.observable(false);
+    self.startMousePosition = 0;
+    self.origWidth = 0;
+    self.gripOnMouseUp = function () {
         $(document).off('mousemove');
         $(document).off('mouseup');
         document.body.style.cursor = 'default';
         return false;
     };
-    this.onMouseMove = function (event) {
+    self.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
-        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
+        var setWidth = newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth);
+        self.width(setWidth);
+        if (self.colToRight) {
+            var orignLeft = self.colToRight.left();
+            self.colToRight.left(orignLeft + diff);
+        }
         return false;
     };
-    this.gripOnMouseDown = function (event) {
+    self.gripOnMouseDown = function (event) {
         self.startMousePosition = event.clientX;
         self.origWidth = self.width();
         $(document).mousemove(self.onMouseMove);

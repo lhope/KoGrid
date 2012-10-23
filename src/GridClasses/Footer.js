@@ -1,28 +1,28 @@
 ﻿kg.Footer = function (grid) {
     var self = this;
 
-    this.maxRows;
+    self.maxRows = undefined;
 
     if (grid.config.totalServerItems() !== null && grid.config.totalServerItems() !== undefined) {
-        this.maxRows = grid.config.totalServerItems; //observable
+        self.maxRows = grid.config.totalServerItems; //observable
     } else {
-        this.maxRows = grid.maxRows; //observable
+        self.maxRows = grid.maxRows; //observable
     }
-    this.isMultiSelect = ko.observable(grid.config.canSelectRows && grid.config.isMultiSelect);
-    this.selectedItemCount = grid.selectedItemCount; //observable
+    self.isMultiSelect = ko.observable(grid.config.canSelectRows && grid.config.isMultiSelect);
+    self.selectedItemCount = grid.selectedItemCount; //observable
 
-    this.footerVisible = grid.config.footerVisible;
-    this.pagerVisible = ko.observable(grid.config.enablePaging);
-    this.selectedPageSize = grid.config.pageSize; //observable
-    this.pageSizes = ko.observableArray(grid.config.pageSizes);
-    this.currentPage = grid.config.currentPage; //observable
-    this.maxPages = ko.computed(function () {
+    self.footerVisible = grid.config.footerVisible;
+    self.pagerVisible = ko.observable(grid.config.enablePaging);
+    self.selectedPageSize = grid.config.pageSize; //observable
+    self.pageSizes = ko.observableArray(grid.config.pageSizes);
+    self.currentPage = grid.config.currentPage; //observable
+    self.maxPages = ko.computed(function () {
         var maxCnt = self.maxRows() || 1,
             pageSize = self.selectedPageSize();
         return Math.ceil(maxCnt / pageSize);
     });
 
-    this.protectedCurrentPage = ko.computed({
+    self.protectedCurrentPage = ko.computed({
         read: function () {
             return self.currentPage();
         },
@@ -35,32 +35,32 @@
         owner: self
     });
 
-    this.pageForward = function () {
+    self.pageForward = function() {
         var page = self.currentPage();
         self.currentPage(Math.min(page + 1, self.maxPages()));
-    }
+    };
 
-    this.pageBackward = function () {
+    self.pageBackward = function () {
         var page = self.currentPage();
         self.currentPage(Math.max(page - 1, 1));
     };
 
-    this.pageToFirst = function () {
+    self.pageToFirst = function () {
         self.currentPage(1);
     };
 
-    this.pageToLast = function () {
+    self.pageToLast = function () {
         var maxPages = self.maxPages();
         self.currentPage(maxPages);
     };
 
-    this.canPageForward = ko.computed(function () {
+    self.canPageForward = ko.computed(function () {
         var curPage = self.currentPage();
         var maxPages = self.maxPages();
         return curPage < maxPages;
     });
 
-    this.canPageBackward = ko.computed(function () {
+    self.canPageBackward = ko.computed(function () {
         var curPage = self.currentPage();
         return curPage > 1;
     });

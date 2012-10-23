@@ -1,5 +1,4 @@
 ﻿ko.bindingHandlers['kgHeaderRow'] = (function () {
-
     var buildHeaders = function (grid) {
         var cols = grid.columns(),
             cell,
@@ -12,7 +11,6 @@
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;
         });
-
         grid.headerRow = headerRow;
         grid.headerRow.height = grid.config.headerRowHeight;
     };
@@ -25,19 +23,18 @@
             };
         };
     };
-
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             buildHeaders(grid);
 
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         }
-    }
-} ());
+    };
+}());

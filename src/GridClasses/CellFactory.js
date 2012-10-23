@@ -7,10 +7,9 @@
             cells = [],
             col,
             i = 0;
-
+        
         for (; i < len; i++) {
             col = colCache[i];
-
             cell = new kg.Cell(col);
             cell.row = row;
             //enabling nested property values in a viewmodel
@@ -19,7 +18,6 @@
             row.cellMap[col.field] = cell;
         }
         row.cells(cells);
-
         return row;
     };
 };

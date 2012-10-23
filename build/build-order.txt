@@ -1,7 +1,6 @@
 ..\Src\Namespace.js
 ..\Src\Constants.js
 ..\src\Navigation.js
-..\Src\Labels.js
 ..\Src\Utils.js
 ..\Src\Templates\GridTemplate.js
 ..\Src\Templates\HeaderTemplate.js
@@ -12,8 +11,8 @@
 ..\Src\GridClasses\Dimension.js
 ..\Src\GridClasses\Cell.js
 ..\Src\GridClasses\Column.js
-..\Src\GridClasses\ColumnCollection.js
 ..\Src\GridClasses\Row.js
+..\Src\GridClasses\RowSubscription.js
 ..\Src\GridClasses\Range.js
 ..\Src\GridClasses\CellFactory.js
 ..\Src\GridClasses\HeaderCell.js
