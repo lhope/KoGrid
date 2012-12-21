@@ -1,5 +1,7 @@
 #koGrid : A Knockout DataGrid#
 
+###The Core KoGrid Repository has moved! Checkout our new [Team](https://github.com/Knockout-Contrib) and [Contribute to KoGrid](https://github.com/Knockout-Contrib/KoGrid)!
+
 __Contributors:__
 
 KoGrid Team:
